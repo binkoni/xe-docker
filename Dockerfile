@@ -23,23 +23,22 @@ RUN apt install --no-install-recommends -y php-gd
 RUN apt install --no-install-recommends -y php-curl
 RUN apt install --no-install-recommends -y php-mysql
 RUN apt install --no-install-recommends -y php-xml
-
-RUN rm /var/www/html/*
-RUN git clone https://github.com/xpressengine/xe-core /usr/src/xe
-RUN echo "AllowOverride All" >> /usr/src/xe/.htaccess
-RUN mkdir -p "/var/www/html/${SUBDIR}"
+RUN apt install --no-install-recommends -y vsftpd
 
 RUN mkdir /var/log/php
 RUN chmod a+rwx /var/log/php
-
 RUN chmod a+rw /var/log/apache2
 
-RUN echo 'socket=/var/run/mysqld/mysqld.sock' >> /etc/mysql/my.cnf
-RUN echo '[mysqld]' >> /etc/mysql/my.cnf
-RUN echo 'sql_mode="NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES"' >> /etc/mysql/my.cnf
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+COPY my.cnf /etc/mysql/my.cnf
+COPY apache2.conf /etc/apache2/apache2.conf
+COPY vsftpd.conf /etc/vsftpd.conf
+
+RUN rm /var/www/html/*
+RUN git clone https://github.com/xpressengine/xe-core /usr/src/xe
+#RUN echo "AllowOverride All" >> /usr/src/xe/.htaccess
+RUN mkdir -p "/var/www/html/${SUBDIR}"
 
 RUN a2enmod rewrite
 RUN a2enmod headers
 
-CMD service mysql start; mysql -u root -e "create database xe; create user 'xe'@'localhost'; grant all privileges on xe.* to 'xe'@'localhost' identified by '$PASSWORD';"; unset PASSWORD; cp -a /usr/src/xe/. "/var/www/html/${SUBDIR}"; chmod 707 "/var/www/html/${SUBDIR}"; exec apache2ctl -DFOREGROUND
+CMD service mysql start; mysql -u root -e "create database xe; create user 'xe'@'localhost'; grant all privileges on xe.* to 'xe'@'localhost' identified by '$PASSWORD';"; unset PASSWORD; cp -a /usr/src/xe/. "/var/www/html/${SUBDIR}"; chmod 707 "/var/www/html/${SUBDIR}"; service vsftpd start; exec apache2ctl -DFOREGROUND
