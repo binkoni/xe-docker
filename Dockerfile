@@ -14,7 +14,7 @@ RUN apt install --no-install-recommends -y php-curl
 RUN apt install --no-install-recommends -y php-mysql
 RUN apt install --no-install-recommends -y php-xml
 RUN rm /var/www/html/*
-RUN git clone https://github.com/xpressengine/xe-core /var/www/html/
+RUN git clone https://github.com/xpressengine/xpressengine /var/www/html/
 RUN chmod 707 /var/www/html
 RUN a2enmod rewrite
 RUN a2enmod headers
