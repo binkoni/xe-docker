@@ -41,9 +41,8 @@ RUN git clone https://github.com/xpressengine/xe-core /usr/src/xe
 #RUN echo "AllowOverride All" >> /usr/src/xe/.htaccess
 RUN mkdir -p "/var/www/html/${SUBDIR}"
 
-RUN mkdir -p /var/ftp/pub
-RUN chown -R ftp /var/ftp
-RUN chmod 555 /var/ftp
-RUN chmod 700 /var/ftp/pub
+RUN chown -R ftp /var/www
+RUN chmod 555 /var/www
+RUN chmod 777 /var/www/html
 
-CMD service mysql start; mysql -u root -e "create database xe; create user 'xe'@'localhost'; grant all privileges on xe.* to 'xe'@'localhost' identified by '$PASSWORD';"; unset PASSWORD; cp -a /usr/src/xe/. "/var/www/html/${SUBDIR}"; chmod 707 "/var/www/html/${SUBDIR}"; service vsftpd start; exec apache2ctl -DFOREGROUND
+CMD service mysql start; mysql -u root -e "create database xe; create user 'xe'@'localhost'; grant all privileges on xe.* to 'xe'@'localhost' identified by '$PASSWORD';"; unset PASSWORD; cp -a /usr/src/xe/. "/var/www/html/${SUBDIR}"; chmod 707 "/var/www/html/${SUBDIR}"; chmod -R a+rw /var/www/html/${SUBDIR}/*; service vsftpd start; exec apache2ctl -DFOREGROUND
