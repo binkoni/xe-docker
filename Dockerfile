@@ -25,6 +25,9 @@ RUN apt install --no-install-recommends -y php-mysql
 RUN apt install --no-install-recommends -y php-xml
 RUN apt install --no-install-recommends -y vsftpd
 
+RUN a2enmod rewrite
+RUN a2enmod headers
+
 RUN mkdir /var/log/php
 RUN chmod a+rwx /var/log/php
 RUN chmod a+rw /var/log/apache2
@@ -38,7 +41,9 @@ RUN git clone https://github.com/xpressengine/xe-core /usr/src/xe
 #RUN echo "AllowOverride All" >> /usr/src/xe/.htaccess
 RUN mkdir -p "/var/www/html/${SUBDIR}"
 
-RUN a2enmod rewrite
-RUN a2enmod headers
+RUN mkdir -p /var/ftp/pub
+RUN chown -R ftp /var/ftp
+RUN chmod 555 /var/ftp
+RUN chmod 700 /var/ftp/pub
 
 CMD service mysql start; mysql -u root -e "create database xe; create user 'xe'@'localhost'; grant all privileges on xe.* to 'xe'@'localhost' identified by '$PASSWORD';"; unset PASSWORD; cp -a /usr/src/xe/. "/var/www/html/${SUBDIR}"; chmod 707 "/var/www/html/${SUBDIR}"; service vsftpd start; exec apache2ctl -DFOREGROUND
